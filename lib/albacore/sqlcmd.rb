@@ -5,7 +5,7 @@ class SQLCmd
   include RunCommand
   include YAMLConfig
   
-  attr_accessor :server, :database, :username, :password, :query
+  attr_accessor :server, :database, :username, :password, :query, :result
   attr_array :scripts
   attr_hash :variables
   
@@ -24,14 +24,15 @@ class SQLCmd
     cmd_params << build_parameter("d", @database) unless @database.nil?
     cmd_params << build_parameter("U", @username) unless @username.nil?
     cmd_params << build_parameter("P", @password) unless @password.nil?
-    cmd_params << build_parameter("q", @query) unless @query.nil?
+    cmd_params << build_parameter("Q", @query) unless @query.nil?
     cmd_params << build_variable_list if @variables.length > 0
     cmd_params << build_script_list if @scripts.length > 0
     
-    result = run_command "SQLCmd", cmd_params.join(" ")
+    @result = run_command "SQLCmd", cmd_params.join(" ")
     
+
     failure_msg = 'SQLCmd Failed. See Build Log For Detail.'
-    fail_with_message failure_msg if !result
+    fail_with_message failure_msg if !@result
   end
   
   def check_command

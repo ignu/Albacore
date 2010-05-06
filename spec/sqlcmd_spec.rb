@@ -56,7 +56,7 @@ describe SQLCmd, "when running a one off command" do
   end
 
   it "should specify the command" do
-    @cmd.system_command.should include("-q \"select 1\"")
+    @cmd.system_command.should include("-Q \"select 1\"")
   end
 
 end
@@ -117,9 +117,7 @@ describe SQLCmd, "when running multiple script files" do
     @cmd.log_level = :verbose
     @cmd.extend(SystemPatch)
     @cmd.disable_system = true
-    
     @cmd.scripts "did you get.sql", "that thing.sql", "i sent you.sql"
-    
     @cmd.run
   end
   

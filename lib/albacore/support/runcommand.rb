@@ -13,19 +13,29 @@ module RunCommand
     @parameters = []
     super()
   end
-  
-  def run_command(command_name="Command Line", command_parameters=nil)
+
+  def query(command)
+    `#{command}`
+  end
+
+  def just_run(command)
+    system command 
+  end
+
+  def run_command(command_name="Command Line", command_parameters=nil, q=false)
     if @require_valid_command
       return false unless valid_command_exists
     end
 
-	@parameters = @parameters.push(command_parameters) unless command_parameters.nil?
+    @parameters = @parameters.push(command_parameters) unless command_parameters.nil?
     
     command = "\"#{@path_to_command}\" #{@parameters.join(' ')}"
     @logger.debug "Executing #{command_name}: #{command}"
     
     set_working_directory    
-    result = system command
+    result = just_run(command) unless q
+    result = query(command) if q
+
     reset_working_directory
     
     result
