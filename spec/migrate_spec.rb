@@ -8,4 +8,8 @@ describe "migrate" do
     migrate.pending.length.should == 2
   end
 
+  it "should run all pending migrations" do
+    pending
+  end
+
 end

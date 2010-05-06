@@ -43,6 +43,24 @@ describe SQLCmd, "when running a script file against a database with authenticat
   end
 end
 
+describe SQLCmd, "when running a one off command" do
+
+  before(:each) do
+    @cmd = SQLCmd.new
+    @cmd.path_to_command = "sqlcmd.exe"
+    @cmd.extend(SystemPatch)
+    @cmd.disable_system = true
+
+    @cmd.query= "select 1"
+    @cmd.run
+  end
+
+  it "should specify the command" do
+    @cmd.system_command.should include("-q \"select 1\"")
+  end
+
+end
+
 describe SQLCmd, "when running with no command path specified" do
   before :all do
     strio = StringIO.new
