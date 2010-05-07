@@ -1,5 +1,4 @@
 require 'albacore/support/albacore_helper'
-
 class SQLCmd
   extend AttrMethods
   include RunCommand
@@ -23,14 +22,11 @@ class SQLCmd
     cmd_params << build_parameter("S", @server) unless @server.nil?
     cmd_params << build_parameter("d", @database) unless @database.nil?
     cmd_params << build_parameter("U", @username) unless @username.nil?
-    cmd_params << build_parameter("P", @password) unless @password.nil?
+    cmd_params << build_parameter("P", @password) unless @password.nil?    
     cmd_params << build_parameter("Q", @query) unless @query.nil?
     cmd_params << build_variable_list if @variables.length > 0
-    cmd_params << build_script_list if @scripts.length > 0
-    
-    @result = run_command "SQLCmd", cmd_params.join(" ")
-    
-
+    cmd_params << build_script_list if @scripts.length > 0    
+    @result = run_command "SQLCmd", cmd_params.join(" "), true
     failure_msg = 'SQLCmd Failed. See Build Log For Detail.'
     fail_with_message failure_msg if !@result
   end
@@ -58,3 +54,4 @@ class SQLCmd
   end
   
 end
+

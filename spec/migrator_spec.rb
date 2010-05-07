@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), 'support', 'spec_helper')
-require 'albacore/migrate'
+require 'albacore/migrator'
 require 'albacore/sqlcmd'
-describe "migrate" do
+describe Migrator do
 
   before(:each) do
     @cmd = SQLCmd.new
@@ -11,7 +11,7 @@ describe "migrate" do
     @cmd.disable_system = true
     @cmd.server="localhost"
     @cmd.database="test"
-    @migrate = Migrate.new @cmd
+    @migrate = Migrator.new @cmd
     @migrate.stub_method(:last_run=>1)
   end
 
@@ -19,7 +19,7 @@ describe "migrate" do
     @migrate.pending.length.should == 2
   end
 
-  describe Migrate, "when running all migrations" do
+  describe Migrator, "when running all migrations" do
     before(:each) do
       @migrate.run
     end

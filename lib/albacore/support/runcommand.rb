@@ -14,7 +14,7 @@ module RunCommand
     super()
   end
 
-  def query(command)
+  def sql_query(command)
     `#{command}`
   end
 
@@ -22,7 +22,7 @@ module RunCommand
     system command 
   end
 
-  def run_command(command_name="Command Line", command_parameters=nil, q=false)
+  def run_command(command_name="Command Line", command_parameters=nil, return_results=false)
     if @require_valid_command
       return false unless valid_command_exists
     end
@@ -33,8 +33,8 @@ module RunCommand
     @logger.debug "Executing #{command_name}: #{command}"
     
     set_working_directory    
-    result = just_run(command) unless q
-    result = query(command) if q
+    result = just_run(command) unless return_results
+    result = sql_query(command) if return_results
 
     reset_working_directory
     
