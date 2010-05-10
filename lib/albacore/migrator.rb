@@ -1,38 +1,35 @@
 require 'albacore/support/albacore_helper'
+require 'albacore/sqlcmd'
 
-class Migrator
-  MIGRATION_TABLE_NAME = "albacore_migrations"
+class Migrator < SQLCmd
+  attr_accessor :migration_directory, :migration_table_name 
 
-  def initialize(cmd)
-    @cmd = cmd
-    insure_migration_table_exists
-  end
-
-  def migration_directory
-    File.join(File.dirname(__FILE__), "migrations")
-    'c:/code/oss/Albacore/spec/support/migrations'
+  def initialize(&block)
+    block.call self unless block.nil? 
+    super
+    @migration_table_name = "albacore_migrations" if migration_table_name.nil?
   end
 
   def last_run
-    @cmd.query = "SELECT MAX(ID) FROM albacore_migrations"
-    @cmd.run    
-    scalar @cmd.result
+    @query = "SELECT MAX(ID) FROM albacore_migrations"
+    run 
+    scalar result
   end
 
-  def run
+  def migrate
+    insure_migration_table_exists
     pending.each do |m|
-      @cmd.query = nil      
-      @cmd.scripts = [full_path(m)]
-      @cmd.parameters = []
-      puts "... Executing #{m}\r\n"
-      @cmd.run      
-      @cmd.parameters = []
-      @cmd.scripts = []
-      @cmd.query = "INSERT INTO #{MIGRATION_TABLE_NAME} (ID) VALUES (#{migration_number(m)})"
-      puts @cmd.query 
-      @cmd.run
+      @query = nil
+      @scripts = [full_path(m)]
+      @parameters = []
+      run      
+
+      puts "Executing #{m}..."
+      @parameters = []
+      @scripts = []
+      @query = "INSERT INTO #{migration_table_name} (ID) VALUES (#{migration_number(m)})"
+      run
     end
-    
   end
 
   def full_path(file_name)
@@ -40,6 +37,9 @@ class Migrator
   end
 
   def all_migrations
+    if migration_directory.nil?
+      raise ArgumentError, "Migration Directory was not supplied" 
+    end
     Dir.entries(migration_directory).find_all {|f| f.match('.sql') }
   end
 
@@ -50,6 +50,7 @@ class Migrator
   private
   
   def scalar(sql_result)
+    raise "No results returned from query: '#{@query}'" if sql_result.nil?
     sql_result.match('--\s+(\d+)').captures.first.to_i
   end
 
@@ -58,17 +59,17 @@ class Migrator
   end
 
   def migration_table_exists?
-    execute_sql "SELECT count(1) FROM sysobjects WHERE NAME = '#{MIGRATION_TABLE_NAME}'"    
-    scalar(@cmd.result) > 0 
+    execute_sql "SELECT count(1) FROM sysobjects WHERE NAME = '#{migration_table_name}'"    
+    scalar(result) > 0 
   end
 
   def create_migration_table
-    execute_sql "CREATE TABLE #{MIGRATION_TABLE_NAME} (ID int NULL, CreateDate datetime NOT NULL DEFAULT(getdate())); INSERT INTO  #{MIGRATION_TABLE_NAME} (ID) VALUES(0)" 
+    execute_sql "CREATE TABLE #{migration_table_name} (ID int NULL, CreateDate datetime NOT NULL DEFAULT(getdate())); INSERT INTO  #{migration_table_name} (ID) VALUES(0)" 
   end
 
   def execute_sql(sql)    
-    @cmd.query = sql
-    @cmd.run
+    @query = sql
+    run
   end
   
   def migration_number(filename)
