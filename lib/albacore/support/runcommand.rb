@@ -1,4 +1,5 @@
 require 'albacore/support/failure'
+require 'albacore/support/attrmethods.rb'
 
 module RunCommand
   extend AttrMethods
@@ -27,9 +28,10 @@ module RunCommand
       return false unless valid_command_exists
     end
 
-    @parameters = @parameters.push(command_parameters) unless command_parameters.nil?
+    combine_parameters = Array.new(@parameters)
+    combine_parameters << command_parameters unless command_parameters.nil?
     
-    command = "\"#{@path_to_command}\" #{@parameters.join(' ')}"
+    command = "\"#{@path_to_command}\" #{combine_parameters.join(' ')}"
     @logger.debug "Executing #{command_name}: #{command}"
     
     set_working_directory    
