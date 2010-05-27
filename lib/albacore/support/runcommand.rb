@@ -15,13 +15,7 @@ module RunCommand
     super()
   end
 
-  def sql_query(command)
-    `#{command}`
-  end
 
-  def just_run(command)
-    system command 
-  end
 
   def run_command(command_name="Command Line", command_parameters=nil, return_results=false)
     if @require_valid_command
@@ -36,7 +30,7 @@ module RunCommand
     
     set_working_directory    
     result = just_run(command) unless return_results
-    result = sql_query(command) if return_results
+    result = cmd_results(command) if return_results
 
     reset_working_directory
     
@@ -59,4 +53,15 @@ module RunCommand
     return if Dir.pwd == @original_directory
     Dir.chdir(@original_directory)
   end
+
+  private
+
+  def cmd_results(command)
+    `#{command}`
+  end
+
+  def just_run(command)
+    system command
+  end
+
 end

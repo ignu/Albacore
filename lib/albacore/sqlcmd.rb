@@ -7,7 +7,16 @@ class SQLCmd
   attr_accessor :server, :database, :username, :password, :query, :result
   attr_array :scripts
   attr_hash :variables
-  
+
+
+  def name
+    @name
+  end
+
+  def name=(value)
+    @name = value
+  end
+
   def initialize
     @require_valid_command = false
     @scripts=[]

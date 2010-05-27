@@ -11,7 +11,7 @@ class Migrator < SQLCmd
   end
 
   def last_run
-    @query = "SELECT MAX(ID) FROM albacore_migrations"
+    @query = "SELECT MAX(ID) FROM #{@migration_table_name}"
     run 
     scalar result
   end

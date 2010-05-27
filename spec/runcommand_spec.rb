@@ -12,6 +12,20 @@ class RunCommandObject
   end
 end
 
+describe "when getting results back" do
+
+  let(customer) { Customer.new }
+
+  before :each do
+    RunCommandObject.new
+    @customer = customer.blah
+  end
+
+  it "returns results" do
+    customer.blah
+  end
+end
+
 describe "when running two instances of a command line task" do
   before :all do
     create_task :run_command_task, Proc.new { RunCommandObject.new } do |ex|
